@@ -95,6 +95,9 @@ def aggregate_votes_and_generate_html(folder_path, question_text):
     with open("results.png", "rb") as img_file:
         encoded_img = base64.b64encode(img_file.read()).decode('utf-8')
 
+    # Compute integer vote percentages (assuming one row)
+    integer_votes_percentages = cumulative_integer_votes.div(cumulative_integer_votes.sum(axis=1), axis=0) * 100
+
     # Create HTML file to display the aggregated results and image
     html_file_path = os.path.join(folder_path, 'aggregated_results.html')
     with open(html_file_path, 'w', encoding='utf-8') as f:
@@ -122,6 +125,11 @@ def aggregate_votes_and_generate_html(folder_path, question_text):
         f.write("<h2>Integer Votes</h2>")
         integer_votes_html = cumulative_integer_votes.copy().reset_index().rename(columns={'index': 'Question'}).to_html(index=False, escape=False)
         f.write(integer_votes_html)
+
+        # Integer votes percentages table
+        f.write("<h2>Integer Votes Percentages</h2>")
+        integer_votes_percentages_html = integer_votes_percentages.copy().reset_index().rename(columns={'index': 'Question'}).to_html(index=False, escape=False)
+        f.write(integer_votes_percentages_html)
 
         # Comments table (only comment text)
         if all_comments:
